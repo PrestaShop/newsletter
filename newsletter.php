@@ -36,7 +36,7 @@ class Newsletter extends Module
 	{
 		$this->name = 'newsletter';
 		$this->tab = 'administration';
-		$this->version = '2.2';
+		$this->version = '2.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -102,18 +102,21 @@ class Newsletter extends Module
 
 	private function postProcess()
 	{
-		if (Tools::isSubmit('submitExport') && $action = Tools::getValue('action'))
+		$result = false;
+		if (Tools::isSubmit('submitExportmodule'))
 		{
-			$result = array();
-			if ($action == 'customers')
-				$result = $this->getCustomers();
+			if (!Module::isInstalled('blocknewsletter'))
+				$this->html .= $this->displayError('The module "blocknewsletter" is required for this feature');
 			else
-			{
-				if (!Module::isInstalled('blocknewsletter'))
-					$this->html .= $this->displayError('The module "blocknewsletter" is required for this feature');
-				else
-					$result = $this->getBlockNewsletter();
-			}
+				$result = $this->getBlockNewsletter();
+		}
+		else if (Tools::isSubmit('submitExport') && $action = Tools::getValue('action'))
+		{
+			$result = $this->getCustomers();
+		}
+
+		if ($result)
+		{
 			if (!$nb = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->NumRows())
 				$this->html .= $this->displayError($this->l('No customers found with these filters!'));
 			elseif ($fd = @fopen(dirname(__FILE__).'/'.strval(preg_replace('#\.{2,}#', '.', Tools::getValue('action'))).'_'.$this->file, 'w'))
@@ -258,7 +261,7 @@ class Newsletter extends Module
 				'submit' => array(
 					'title' => $this->l('Export .CSV file'),
 					'class' => 'btn btn-default pull-right',
-					'name' => 'submitExport',
+					'name' => 'submitExportmodule',
 				)
 			),
 		);
