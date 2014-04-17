@@ -36,7 +36,7 @@ class Newsletter extends Module
 	{
 		$this->name = 'newsletter';
 		$this->tab = 'administration';
-		$this->version = '2.3';
+		$this->version = '2.4';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -45,7 +45,6 @@ class Newsletter extends Module
 
 		$this->displayName = $this->l('Newsletter');
 		$this->description = $this->l('Generates a .CSV file for mass mailings');
-		$this->ps_versions_compliancy = array('min' => '1.5.6.1', 'max' => _PS_VERSION_);
 
 		if ($this->id)
 		{
