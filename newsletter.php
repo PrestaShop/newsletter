@@ -105,7 +105,7 @@ class Newsletter extends Module
 		if (Tools::isSubmit('submitExportmodule'))
 		{
 			if (!Module::isInstalled('blocknewsletter'))
-				$this->html .= $this->displayError('The module "blocknewsletter" is required for this feature');
+				$this->html .= $this->displayError('The "blocknewsletter" module is required for this feature.');
 			else
 				$result = $this->getBlockNewsletter();
 		}
@@ -124,7 +124,7 @@ class Newsletter extends Module
 					$this->myFputCsv($fd, $tab);
 				fclose($fd);
 				$this->html .= $this->displayConfirmation(
-					sprintf($this->l('The .CSV file has been successfully exported. (%d customers found)'), $nb).'<br />
+					sprintf($this->l('The .CSV file has been successfully exported: %d customers found.'), $nb).'<br />
 				<a href="../modules/newsletter/'.Tools::safeOutput(strval(Tools::getValue('action'))).'_'.$this->file.'">
 				<b>'.$this->l('Download the file').' '.$this->file.'</b>
 				</a>
@@ -274,7 +274,7 @@ class Newsletter extends Module
 				'input' => array(
 					array(
 						'type' => 'select',
-						'label' => $this->l('Customers\' country :'),
+						'label' => $this->l('Customers\' country'),
 						'desc' => $this->l('Operate a filter on customers\' country.'),
 						'name' => 'COUNTRY',
 						'required' => false,
@@ -287,7 +287,7 @@ class Newsletter extends Module
 					),
 					array(
 						'type' => 'select',
-						'label' => $this->l('Newsletter subscribers :'),
+						'label' => $this->l('Newsletter subscribers'),
 						'desc' => $this->l('Filter newsletter subscribers.'),
 						'name' => 'SUSCRIBERS',
 						'required' => false,
@@ -304,7 +304,7 @@ class Newsletter extends Module
 					),
 					array(
 						'type' => 'select',
-						'label' => $this->l('Opted-in subscribers :'),
+						'label' => $this->l('Opted-in subscribers'),
 						'desc' => $this->l('Filter opted-in subscribers.'),
 						'name' => 'OPTIN',
 						'required' => false,
