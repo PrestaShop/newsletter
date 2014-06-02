@@ -1,0 +1,5 @@
+2014-04-17 11:40:19 +0200	Bug fix (PS 1.5): ps_version_compliancy removed
+2014-03-26 17:59:21 +0100	// version updated
+2014-03-26 17:58:57 +0100	//smallfix
+2014-03-24 18:26:34 +0100	/ MO newsletter : ps_versions_compliancy added
+2014-03-21 10:55:12 +0100	Initial commit
