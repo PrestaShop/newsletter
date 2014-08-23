@@ -36,7 +36,7 @@ class Newsletter extends Module
 	{
 		$this->name = 'newsletter';
 		$this->tab = 'administration';
-		$this->version = '2.4.2';
+		$this->version = '2.4.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
@@ -102,14 +102,7 @@ class Newsletter extends Module
 	private function postProcess()
 	{
 		$result = false;
-		if (Tools::isSubmit('submitExportmodule'))
-		{
-			if (!Module::isInstalled('blocknewsletter'))
-				$this->html .= $this->displayError('The "blocknewsletter" module is required for this feature.');
-			else
-				$result = $this->getBlockNewsletter();
-		}
-		else if (Tools::isSubmit('submitExport') && $action = Tools::getValue('action'))
+		if (Tools::isSubmit('submitExport') && $action = Tools::getValue('action'))
 		{
 			$result = $this->getCustomers();
 		}
@@ -120,7 +113,9 @@ class Newsletter extends Module
 				$this->html .= $this->displayError($this->l('No customers found with these filters!'));
 			elseif ($fd = @fopen(dirname(__FILE__).'/'.strval(preg_replace('#\.{2,}#', '.', Tools::getValue('action'))).'_'.$this->file, 'w'))
 			{
-				foreach ($result as $tab)
+				$header = array('id', 'shop_name', 'gender', 'lastname', 'firstname', 'email', 'subscribed', 'subscribed_on');
+				$array_to_export = array_merge(array($header), $result);
+				foreach ($array_to_export as $tab)
 					$this->myFputCsv($fd, $tab);
 				fclose($fd);
 				$this->html .= $this->displayConfirmation(
@@ -142,31 +137,56 @@ class Newsletter extends Module
 
 	private function getCustomers()
 	{
-		$dbquery = new DbQuery();
-		$dbquery->select('c.`id_customer`, c.`lastname`, c.`firstname`, c.`email`, c.`ip_registration_newsletter`, c.`newsletter_date_add`')->from('customer', 'c')->groupBy('c.`email`');
+		// Get the value to know with subscrib I need to take 1 with account 2 without 0 both 3 not subscrib
+		$who = (int)Tools::getValue('SUSCRIBERS');
 
-		if (Tools::getValue('SUSCRIBERS'))
-			$dbquery->where('c.`newsletter` = '.((int)Tools::getValue('SUSCRIBERS') - 1));
+		// get optin 0 for all 1 no optin 2 with optin
+		$optin = (int)Tools::getValue('OPTIN');
 
-		if (Tools::getValue('OPTIN'))
-			$dbquery->where('c.`optin` = '.((int)Tools::getValue('OPTIN') - 1));
-
-		if (Tools::getValue('COUNTRY'))
-			$dbquery->where('(SELECT COUNT(a.`id_address`) as nb_country
-								FROM `'._DB_PREFIX_.'address` a
-								WHERE a.deleted = 0
-								AND a.`id_customer` = c.`id_customer`
-								AND a.`id_country` = '.(int)Tools::getValue('COUNTRY').') >= 1');
+		$country = (int)Tools::getValue('COUNTRY');
 
 		if (Context::getContext()->cookie->shopContext)
-			$dbquery->where('c.id_shop = '.(int)Context::getContext()->shop->id);
+			$id_shop = (int)Context::getContext()->shop->id;
 
-		$rq = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($dbquery->build());
+		if ($who == 1 || $who == 0 || $who == 3)
+		{
+			$dbquery = new DbQuery();
+			$dbquery->select('c.`id_customer` AS `id`, s.`name` AS `shop_name`, gl.`name` AS `gender`, c.`lastname`, c.`firstname`, c.`email`, c.`newsletter` AS `subscribed`, c.`newsletter_date_add`');
+			$dbquery->from('customer', 'c');
+			$dbquery->leftJoin('shop', 's', 's.id_shop = c.id_shop');
+			$dbquery->leftJoin('gender', 'g', 'g.id_gender = c.id_gender');
+			$dbquery->leftJoin('gender_lang', 'gl', 'g.id_gender = gl.id_gender AND gl.id_lang = '.$this->context->employee->id_lang);
+			$dbquery->where('c.`newsletter` = '.($who == 3 ? 0 : 1));
+			if ($optin)
+				$dbquery->where('c.`optin` = '.$optin == 1 ? 0 : 1);
+			if ($country)
+				$dbquery->where('(SELECT COUNT(a.`id_address`) as nb_country
+													FROM `'._DB_PREFIX_.'address` a
+													WHERE a.deleted = 0
+													AND a.`id_customer` = c.`id_customer`
+													AND a.`id_country` = '.$country.') >= 1');
+			if ($id_shop)
+				$dbquery->where('c.`id_shop` = '.$id_shop);
+		}
 
-		$header = array('id_customer', 'lastname', 'firstname', 'email', 'ip_address', 'newsletter_date_add');
-		$result = (is_array($rq) ? array_merge(array($header), $rq) : $header);
+		$customers = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($dbquery->build());
 
-		return $result;
+		if (($who == 0 || $who == 2) && !$optin && !$country)
+		{
+			$dbquery = new DbQuery();
+			$dbquery->select('CONCAT(\'N\', n.`id`) AS `id`, s.`name` AS `shop_name`, NULL AS `gender`, NULL AS `lastname`, NULL AS `firstname`, n.`email`, n.`active` AS `subscribed`, n.`newsletter_date_add`');
+			$dbquery->from('newsletter', 'n');
+			$dbquery->leftJoin('shop', 's', 's.id_shop = n.id_shop');
+			$dbquery->where('n.`active` = 1');
+			if ($id_shop)
+				$dbquery->where('n.`id_shop` = '.$id_shop);
+		}
+
+		$non_customers = Db::getInstance()->executeS($dbquery->build());
+
+		$subscribers = array_merge($customers, $non_customers);
+
+		return $subscribers;
 	}
 
 	private function getBlockNewsletter()
@@ -229,11 +249,12 @@ class Newsletter extends Module
 				'desc' => $this->l('Filter newsletter subscribers.'),
 				'type' => 'select',
 				'value' => array(
-					0 => $this->l('All customers'),
-					2 => $this->l('Subscribers'),
-					1 => $this->l('Non-subscribers')
+					0 => $this->l('All Subscribers'),
+					1 => $this->l('Subscribers with an account'),
+					2 => $this->l('Subscribers without an account'),
+					3 => $this->l('Non-subscribers')
 				),
-				'value_default' => 2
+				'value_default' => 0
 			),
 			'OPTIN' => array(
 				'title' => $this->l('Opted-in subscribers'),
@@ -248,24 +269,7 @@ class Newsletter extends Module
 			),
 		);
 
-		$fields_form_1 = array(
-			'form' => array(
-				'legend' => array(
-					'title' => $this->l('Export Newsletter Subscribers'),
-					'icon' => 'icon-envelope'
-				),
-				'desc' => array(
-					array('text' => $this->l('Generate a .CSV file based on BlockNewsletter subscribers data. Only subscribers without an account on the shop will be exported.'))
-				),
-				'submit' => array(
-					'title' => $this->l('Export .CSV file'),
-					'class' => 'btn btn-default pull-right',
-					'name' => 'submitExportmodule',
-				)
-			),
-		);
-
-		$fields_form_2 = array(
+		$fields_form = array(
 			'form' => array(
 				'legend' => array(
 					'title' => $this->l('Export customers'),
@@ -294,9 +298,10 @@ class Newsletter extends Module
 						'default_value' => (int)$this->context->country->id,
 						'options' => array(
 							'query' => array(
-								array('id' => 0, 'name' => $this->l('All customers')),
-								array('id' => 2, 'name' => $this->l('Subscribers')),
-								array('id' => 1, 'name' => $this->l('Non-subscribers'))
+								array('id' => 0, 'name' => $this->l('All Subscribers')),
+								array('id' => 1, 'name' => $this->l('Subscribers with an account')),
+								array('id' => 2, 'name' => $this->l('Subscribers without an account')),
+								array('id' => 3, 'name' => $this->l('Non-subscribers'))
 							),
 							'id' => 'id',
 							'name' => 'name',
@@ -349,7 +354,7 @@ class Newsletter extends Module
 			'id_language' => $this->context->language->id
 		);
 
-		return $helper->generateForm(array($fields_form_1, $fields_form_2));
+		return $helper->generateForm(array($fields_form));
 	}
 
 	public function getConfigFieldsValues()
