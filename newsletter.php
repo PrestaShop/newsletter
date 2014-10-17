@@ -109,8 +109,7 @@ class Newsletter extends Module
 
 		if ($result)
 		{
-			$nb = count($result);
-			if ($nb == 0)
+			if (!$nb = count($result))
 				$this->html .= $this->displayError($this->l('No customers found with these filters!'));
 			elseif ($fd = @fopen(dirname(__FILE__).'/'.strval(preg_replace('#\.{2,}#', '.', Tools::getValue('action'))).'_'.$this->file, 'w'))
 			{
