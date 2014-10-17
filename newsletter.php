@@ -148,6 +148,7 @@ class Newsletter extends Module
 		if (Context::getContext()->cookie->shopContext)
 			$id_shop = (int)Context::getContext()->shop->id;
 
+		$customers = array();
 		if ($who == 1 || $who == 0 || $who == 3)
 		{
 			$dbquery = new DbQuery();
@@ -167,10 +168,10 @@ class Newsletter extends Module
 													AND a.`id_country` = '.$country.') >= 1');
 			if ($id_shop)
 				$dbquery->where('c.`id_shop` = '.$id_shop);
+			$customers = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($dbquery->build());
 		}
 
-		$customers = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($dbquery->build());
-
+		$non_customers = array();
 		if (($who == 0 || $who == 2) && !$optin && !$country)
 		{
 			$dbquery = new DbQuery();
@@ -180,9 +181,8 @@ class Newsletter extends Module
 			$dbquery->where('n.`active` = 1');
 			if ($id_shop)
 				$dbquery->where('n.`id_shop` = '.$id_shop);
+			$non_customers = Db::getInstance()->executeS($dbquery->build());
 		}
-
-		$non_customers = Db::getInstance()->executeS($dbquery->build());
 
 		$subscribers = array_merge($customers, $non_customers);
 
