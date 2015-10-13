@@ -126,18 +126,18 @@ class Newsletter extends Module
 				<br />
 				<ol style="margin-top: 10px;">
 					<li style="color: red;">'.
-					$this->l('WARNING: If opening this .csv file with Excel, remember to choose UTF-8 encoding or you may see strange characters.').
+					$this->l('WARNING: When opening this .csv file with Excel, choose UTF-8 encoding to avoid strange characters.').
 					'</li>
 				</ol>');
 			}
 			else
-				$this->html .= $this->displayError($this->l('Error: cannot write').' '.dirname(__FILE__).'/'.strval(Tools::getValue('action')).'_'.$this->file.' !');
+				$this->html .= $this->displayError($this->l('Error:Write acess limited').' '.dirname(__FILE__).'/'.strval(Tools::getValue('action')).'_'.$this->file.' !');
 		}
 	}
 
 	private function getCustomers()
 	{
-		// Get the value to know with subscrib I need to take 1 with account 2 without 0 both 3 not subscrib
+		// Get the value for subscriber's status (1=with account, 2=without account, 0=both, 3=no subscribtion)
 		$who = (int)Tools::getValue('SUSCRIBERS');
 
 		// get optin 0 for all 1 no optin 2 with optin
@@ -239,7 +239,7 @@ class Newsletter extends Module
 		$this->fields_export = array(
 			'COUNTRY' => array(
 				'title' => $this->l('Customers\' country'),
-				'desc' => $this->l('Operate a filter on customers\' country.'),
+				'desc' => $this->l('Filter customers\' country.'),
 				'type' => 'select',
 				'value' => $countries_list,
 				'value_default' => 0
@@ -250,15 +250,15 @@ class Newsletter extends Module
 				'type' => 'select',
 				'value' => array(
 					0 => $this->l('All Subscribers'),
-					1 => $this->l('Subscribers with an account'),
-					2 => $this->l('Subscribers without an account'),
+					1 => $this->l('Subscribers with account'),
+					2 => $this->l('Subscribers without account'),
 					3 => $this->l('Non-subscribers')
 				),
 				'value_default' => 0
 			),
 			'OPTIN' => array(
-				'title' => $this->l('Opted-in subscribers'),
-				'desc' => $this->l('Filter opted-in subscribers.'),
+				'title' => $this->l('Opt-in subscribers'),
+				'desc' => $this->l('Filter opt-in subscribers.'),
 				'type' => 'select',
 				'value' => array(
 					0 => $this->l('All customers'),
@@ -279,7 +279,7 @@ class Newsletter extends Module
 					array(
 						'type' => 'select',
 						'label' => $this->l('Customers\' country'),
-						'desc' => $this->l('Operate a filter on customers\' country.'),
+						'desc' => $this->l('Filter customers\' country.'),
 						'name' => 'COUNTRY',
 						'required' => false,
 						'default_value' => (int)$this->context->country->id,
@@ -299,8 +299,8 @@ class Newsletter extends Module
 						'options' => array(
 							'query' => array(
 								array('id' => 0, 'name' => $this->l('All Subscribers')),
-								array('id' => 1, 'name' => $this->l('Subscribers with an account')),
-								array('id' => 2, 'name' => $this->l('Subscribers without an account')),
+								array('id' => 1, 'name' => $this->l('Subscribers with account')),
+								array('id' => 2, 'name' => $this->l('Subscribers without account')),
 								array('id' => 3, 'name' => $this->l('Non-subscribers'))
 							),
 							'id' => 'id',
@@ -309,8 +309,8 @@ class Newsletter extends Module
 					),
 					array(
 						'type' => 'select',
-						'label' => $this->l('Opted-in subscribers'),
-						'desc' => $this->l('Filter opted-in subscribers.'),
+						'label' => $this->l('Opt-in subscribers'),
+						'desc' => $this->l('Filter opt-in subscribers.'),
 						'name' => 'OPTIN',
 						'required' => false,
 						'default_value' => (int)$this->context->country->id,
