@@ -131,7 +131,7 @@ class Newsletter extends Module
 				</ol>');
 			}
 			else
-				$this->html .= $this->displayError($this->l('Error:Write acess limited').' '.dirname(__FILE__).'/'.strval(Tools::getValue('action')).'_'.$this->file.' !');
+				$this->html .= $this->displayError($this->l('Error: Write access limited').' '.dirname(__FILE__).'/'.strval(Tools::getValue('action')).'_'.$this->file.' !');
 		}
 	}
 
