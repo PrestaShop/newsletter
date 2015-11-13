@@ -63,7 +63,7 @@ class Newsletter extends Module
 			$this->fields_export = array(
 				'COUNTRY' => array(
 					'title' => $this->l('Customers\' country'),
-					'desc' => $this->l('Operate a filter on customers\' country.'),
+					'desc' => $this->l('Filter customers\' country.'),
 					'type' => 'select',
 					'value' => $countries_list,
 					'value_default' => 0
@@ -80,8 +80,8 @@ class Newsletter extends Module
 					'value_default' => 2
 				),
 				'OPTIN' => array(
-					'title' => $this->l('Opted-in subscribers'),
-					'desc' => $this->l('Filter opted-in subscribers.'),
+					'title' => $this->l('Opt-in subscribers'),
+					'desc' => $this->l('Filter opt-in subscribers.'),
 					'type' => 'select',
 					'value' => array(
 						0 => $this->l('All customers'),
