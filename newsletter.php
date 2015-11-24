@@ -36,7 +36,7 @@ class Newsletter extends Module
 	{
 		$this->name = 'newsletter';
 		$this->tab = 'administration';
-		$this->version = '2.5.1';
+		$this->version = '2.5.2';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 
