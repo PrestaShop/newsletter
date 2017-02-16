@@ -43,8 +43,8 @@ class Newsletter extends Module
 		$this->bootstrap = true;
 		parent::__construct();
 
-		$this->displayName = $this->l('Newsletter');
-		$this->description = $this->l('Generates a .CSV file for mass mailings');
+		$this->displayName = $this->trans('Newsletter', array(), 'Modules.Newsletter.Admin');
+		$this->description = $this->trans('Generates a .CSV file for mass mailings', array(), 'Modules.Newsletter.Admin');
 
 		if ($this->id)
 		{
@@ -55,38 +55,38 @@ class Newsletter extends Module
 			$countries = Country::getCountries($this->context->language->id);
 
 			// ...formatting array
-			$countries_list = array($this->l('All countries'));
+			$countries_list = array($this->trans('All countries', array(), 'Modules.Newsletter.Admin'));
 			foreach ($countries as $country)
 				$countries_list[$country['id_country']] = $country['name'];
 
 			// And filling fields to show !
 			$this->fields_export = array(
 				'COUNTRY' => array(
-					'title' => $this->l('Customers\' country'),
-					'desc' => $this->l('Filter customers\' country.'),
+					'title' => $this->trans('Customers\' country', array(), 'Modules.Newsletter.Admin'),
+					'desc' => $this->trans('Filter customers\' country.', array(), 'Modules.Newsletter.Admin'),
 					'type' => 'select',
 					'value' => $countries_list,
 					'value_default' => 0
 				),
 				'SUSCRIBERS' => array(
-					'title' => $this->l('Newsletter subscribers'),
-					'desc' => $this->l('Filter newsletter subscribers.'),
+					'title' => $this->trans('Newsletter subscribers', array(), 'Modules.Newsletter.Admin'),
+					'desc' => $this->trans('Filter newsletter subscribers.', array(), 'Modules.Newsletter.Admin'),
 					'type' => 'select',
 					'value' => array(
-						0 => $this->l('All customers'),
-						2 => $this->l('Subscribers'),
-						1 => $this->l('Non-subscribers')
+						0 => $this->trans('All customers', array(), 'Modules.Newsletter.Admin'),
+						2 => $this->trans('Subscribers', array(), 'Modules.Newsletter.Admin'),
+						1 => $this->trans('Non-subscribers', array(), 'Modules.Newsletter.Admin')
 					),
 					'value_default' => 2
 				),
 				'OPTIN' => array(
-					'title' => $this->l('Opt-in subscribers'),
-					'desc' => $this->l('Filter opt-in subscribers.'),
+					'title' => $this->trans('Opt-in subscribers', array(), 'Modules.Newsletter.Admin'),
+					'desc' => $this->trans('Filter opt-in subscribers.', array(), 'Modules.Newsletter.Admin'),
 					'type' => 'select',
 					'value' => array(
-						0 => $this->l('All customers'),
-						2 => $this->l('Subscribers'),
-						1 => $this->l('Non-subscribers')
+						0 => $this->trans('All customers', array(), 'Modules.Newsletter.Admin'),
+						2 => $this->trans('Subscribers', array(), 'Modules.Newsletter.Admin'),
+						1 => $this->trans('Non-subscribers', array(), 'Modules.Newsletter.Admin')
 					),
 					'value_default' => 0
 				),
@@ -110,7 +110,7 @@ class Newsletter extends Module
 		if ($result)
 		{
 			if (!$nb = count($result))
-				$this->html .= $this->displayError($this->l('No customers found with these filters!'));
+				$this->html .= $this->displayError($this->trans('No customers found with these filters!', array(), 'Modules.Newsletter.Admin'));
 			elseif ($fd = @fopen(dirname(__FILE__).'/'.strval(preg_replace('#\.{2,}#', '.', Tools::getValue('action'))).'_'.$this->file, 'w'))
 			{
 				$header = array('id', 'shop_name', 'gender', 'lastname', 'firstname', 'email', 'subscribed', 'subscribed_on');
@@ -119,19 +119,19 @@ class Newsletter extends Module
 					$this->myFputCsv($fd, $tab);
 				fclose($fd);
 				$this->html .= $this->displayConfirmation(
-					sprintf($this->l('The .CSV file has been successfully exported: %d customers found.'), $nb).'<br />
+					$this->trans('The .CSV file has been successfully exported: %d customers found.', array($nb), 'Modules.Newsletter.Admin').'<br />
 				<a href="../modules/newsletter/'.Tools::safeOutput(strval(Tools::getValue('action'))).'_'.$this->file.'">
-				<b>'.$this->l('Download the file').' '.$this->file.'</b>
+				<b>'.$this->trans('Download the file', array(), 'Modules.Newsletter.Admin').' '.$this->file.'</b>
 				</a>
 				<br />
 				<ol style="margin-top: 10px;">
 					<li style="color: red;">'.
-					$this->l('WARNING: When opening this .csv file with Excel, choose UTF-8 encoding to avoid strange characters.').
+					$this->trans('WARNING: When opening this .csv file with Excel, choose UTF-8 encoding to avoid strange characters.', array(), 'Modules.Newsletter.Admin').
 					'</li>
 				</ol>');
 			}
 			else
-				$this->html .= $this->displayError($this->l('Error: Write access limited').' '.dirname(__FILE__).'/'.strval(Tools::getValue('action')).'_'.$this->file.' !');
+				$this->html .= $this->displayError($this->trans('Error: Write access limited', array(), 'Modules.Newsletter.Admin').' '.dirname(__FILE__).'/'.strval(Tools::getValue('action')).'_'.$this->file.' !');
 		}
 	}
 
@@ -211,7 +211,7 @@ class Newsletter extends Module
 		$line = implode(';', $array);
 		$line .= "\n";
 		if (!fwrite($fd, $line, 4096))
-			$this->post_errors[] = $this->l('Error: cannot write').' '.dirname(__FILE__).'/'.$this->file.' !';
+			$this->post_errors[] = $this->trans('Error: cannot write', array(), 'Modules.Newsletter.Admin').' '.dirname(__FILE__).'/'.$this->file.' !';
 	}
 
 	public function getContent()
@@ -231,39 +231,39 @@ class Newsletter extends Module
 		$countries = Country::getCountries($this->context->language->id);
 
 		// ...formatting array
-		$countries_list = array(array('id' => 0, 'name' => $this->l('All countries')));
+		$countries_list = array(array('id' => 0, 'name' => $this->trans('All countries', array(), 'Modules.Newsletter.Admin')));
 		foreach ($countries as $country)
 			$countries_list[] = array('id' => $country['id_country'], 'name' => $country['name']);
 
 		// And filling fields to show !
 		$this->fields_export = array(
 			'COUNTRY' => array(
-				'title' => $this->l('Customers\' country'),
-				'desc' => $this->l('Filter customers\' country.'),
+				'title' => $this->trans('Customers\' country', array(), 'Modules.Newsletter.Admin'),
+				'desc' => $this->trans('Filter customers\' country.', array(), 'Modules.Newsletter.Admin'),
 				'type' => 'select',
 				'value' => $countries_list,
 				'value_default' => 0
 			),
 			'SUSCRIBERS' => array(
-				'title' => $this->l('Newsletter subscribers'),
-				'desc' => $this->l('Filter newsletter subscribers.'),
+				'title' => $this->trans('Newsletter subscribers', array(), 'Modules.Newsletter.Admin'),
+				'desc' => $this->trans('Filter newsletter subscribers.', array(), 'Modules.Newsletter.Admin'),
 				'type' => 'select',
 				'value' => array(
-					0 => $this->l('All Subscribers'),
-					1 => $this->l('Subscribers with account'),
-					2 => $this->l('Subscribers without account'),
-					3 => $this->l('Non-subscribers')
+					0 => $this->trans('All Subscribers', array(), 'Modules.Newsletter.Admin'),
+					1 => $this->trans('Subscribers with account', array(), 'Modules.Newsletter.Admin'),
+					2 => $this->trans('Subscribers without account', array(), 'Modules.Newsletter.Admin'),
+					3 => $this->trans('Non-subscribers', array(), 'Modules.Newsletter.Admin')
 				),
 				'value_default' => 0
 			),
 			'OPTIN' => array(
-				'title' => $this->l('Opt-in subscribers'),
-				'desc' => $this->l('Filter opt-in subscribers.'),
+				'title' => $this->trans('Opt-in subscribers', array(), 'Modules.Newsletter.Admin'),
+				'desc' => $this->trans('Filter opt-in subscribers.', array(), 'Modules.Newsletter.Admin'),
 				'type' => 'select',
 				'value' => array(
-					0 => $this->l('All customers'),
-					2 => $this->l('Subscribers'),
-					1 => $this->l('Non-subscribers')
+					0 => $this->trans('All customers', array(), 'Modules.Newsletter.Admin'),
+					2 => $this->trans('Subscribers', array(), 'Modules.Newsletter.Admin'),
+					1 => $this->trans('Non-subscribers', array(), 'Modules.Newsletter.Admin')
 				),
 				'value_default' => 0
 			),
@@ -272,14 +272,14 @@ class Newsletter extends Module
 		$fields_form = array(
 			'form' => array(
 				'legend' => array(
-					'title' => $this->l('Export customers'),
+					'title' => $this->trans('Export customers', array(), 'Modules.Newsletter.Admin'),
 					'icon' => 'icon-envelope'
 				),
 				'input' => array(
 					array(
 						'type' => 'select',
-						'label' => $this->l('Customers\' country'),
-						'desc' => $this->l('Filter customers\' country.'),
+						'label' => $this->trans('Customers\' country', array(), 'Modules.Newsletter.Admin'),
+						'desc' => $this->trans('Filter customers\' country.', array(), 'Modules.Newsletter.Admin'),
 						'name' => 'COUNTRY',
 						'required' => false,
 						'default_value' => (int)$this->context->country->id,
@@ -291,17 +291,17 @@ class Newsletter extends Module
 					),
 					array(
 						'type' => 'select',
-						'label' => $this->l('Newsletter subscribers'),
-						'desc' => $this->l('Filter newsletter subscribers.'),
+						'label' => $this->trans('Newsletter subscribers', array(), 'Modules.Newsletter.Admin'),
+						'desc' => $this->trans('Filter newsletter subscribers.', array(), 'Modules.Newsletter.Admin'),
 						'name' => 'SUSCRIBERS',
 						'required' => false,
 						'default_value' => (int)$this->context->country->id,
 						'options' => array(
 							'query' => array(
-								array('id' => 0, 'name' => $this->l('All Subscribers')),
-								array('id' => 1, 'name' => $this->l('Subscribers with account')),
-								array('id' => 2, 'name' => $this->l('Subscribers without account')),
-								array('id' => 3, 'name' => $this->l('Non-subscribers'))
+								array('id' => 0, 'name' => $this->trans('All Subscribers', array(), 'Modules.Newsletter.Admin')),
+								array('id' => 1, 'name' => $this->trans('Subscribers with account', array(), 'Modules.Newsletter.Admin')),
+								array('id' => 2, 'name' => $this->trans('Subscribers without account', array(), 'Modules.Newsletter.Admin')),
+								array('id' => 3, 'name' => $this->trans('Non-subscribers', array(), 'Modules.Newsletter.Admin'))
 							),
 							'id' => 'id',
 							'name' => 'name',
@@ -309,16 +309,16 @@ class Newsletter extends Module
 					),
 					array(
 						'type' => 'select',
-						'label' => $this->l('Opt-in subscribers'),
-						'desc' => $this->l('Filter opt-in subscribers.'),
+						'label' => $this->trans('Opt-in subscribers', array(), 'Modules.Newsletter.Admin'),
+						'desc' => $this->trans('Filter opt-in subscribers.', array(), 'Modules.Newsletter.Admin'),
 						'name' => 'OPTIN',
 						'required' => false,
 						'default_value' => (int)$this->context->country->id,
 						'options' => array(
 							'query' => array(
-								array('id' => 0, 'name' => $this->l('All customers')),
-								array('id' => 2, 'name' => $this->l('Subscribers')),
-								array('id' => 1, 'name' => $this->l('Non-subscribers'))
+								array('id' => 0, 'name' => $this->trans('All customers', array(), 'Modules.Newsletter.Admin')),
+								array('id' => 2, 'name' => $this->trans('Subscribers', array(), 'Modules.Newsletter.Admin')),
+								array('id' => 1, 'name' => $this->trans('Non-subscribers', array(), 'Modules.Newsletter.Admin'))
 							),
 							'id' => 'id',
 							'name' => 'name',
@@ -330,7 +330,7 @@ class Newsletter extends Module
 					)
 				),
 				'submit' => array(
-					'title' => $this->l('Export .CSV file'),
+					'title' => $this->trans('Export .CSV file', array(), 'Modules.Newsletter.Admin'),
 					'class' => 'btn btn-default pull-right',
 					'name' => 'submitExport',
 				)
