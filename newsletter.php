@@ -45,6 +45,7 @@ class Newsletter extends Module
 
 		$this->displayName = $this->trans('Newsletter', array(), 'Modules.Newsletter.Admin');
 		$this->description = $this->trans('Generates a .CSV file for mass mailings', array(), 'Modules.Newsletter.Admin');
+		$this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
 
 		if ($this->id)
 		{
